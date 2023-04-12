@@ -1,3 +1,13 @@
+# ==============================================================================
+# Author: nvmoyar, Jose Ramón Fernandez Junquera
+# Assisted by: OpenAI ChatGPT
+# Date: 2023-04-11
+# Description: A Python game featuring two balls. The controlled ball moves
+#              using the arrow keys and gains points when colliding with the
+#              random bouncing ball. The game ends when the user reaches 100 points.
+# ==============================================================================
+
+
 import pygame
 import random
 import time
@@ -37,9 +47,18 @@ if __name__ == "__main__":
             self.color = color
             self.speed_x = speed_x
             self.speed_y = speed_y
+            self.fill_alpha = 0  # Added attribute for fill color alpha
+
+        #def draw(self, screen):
+        #    pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 
         def draw(self, screen):
-            pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
+            pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius, 2) # Added the width parameter for the contour
+            if self.fill_alpha > 0:  # Draw the transparent red fill only if alpha > 0
+                fill_surface = pygame.Surface((2 * self.radius, 2 * self.radius), pygame.SRCALPHA)
+                fill_color = pygame.Color(255, 0, 0, self.fill_alpha)
+                pygame.draw.circle(fill_surface, fill_color, (self.radius, self.radius), self.radius)
+                screen.blit(fill_surface, (int(self.x) - self.radius, int(self.y) - self.radius))
 
         def collide(self, other):
             distance = ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
@@ -92,14 +111,17 @@ if __name__ == "__main__":
             random_ball.speed_y *= -1
 
   
+       
         # Check for collisions
         if controlled_ball.collide(random_ball) and not collision_happened:
             points += REWARD_POINTS
             collision_happened = True
-            controlled_ball.color = YELLOW  # Change the color to yellow
+            controlled_ball.fill_alpha = int(points / 100 * 255)  # Update the fill_alpha based on the current score
+            # controlled_ball.color = YELLOW  # Change the color to yellow
         elif not controlled_ball.collide(random_ball):
             collision_happened = False
-            controlled_ball.color = RED  # Change the color back to red
+
+
 
 
         # Update timer
