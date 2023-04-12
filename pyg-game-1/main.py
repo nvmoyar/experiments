@@ -19,6 +19,10 @@ if __name__ == "__main__":
     RED = (255, 0, 0)
     BLUE = (0, 0, 255)
     YELLOW = (255, 255, 0)
+    PENALIZING_TIME = 10 # SECONDS
+    PENALIZING_POINTS = 10 
+    PIXEL_SPEED = 10
+    REWARD_POINTS = 15
 
     # Create the screen
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -39,11 +43,11 @@ if __name__ == "__main__":
 
         def collide(self, other):
             distance = ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
-            return distance <= self.radius + other.radius - 0.5 * min(self.radius, other.radius)  # Updated condition for more than 50% overlap
+            return distance <= self.radius + other.radius - 0.7 * min(self.radius, other.radius)  # Updated condition for more than 70% overlap
 
 
     # Random ball
-    random_ball = Ball(random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50), 20, BLUE, random.choice([-5, 5]), random.choice([-5, 5]))
+    random_ball = Ball(random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50), 20, BLUE, random.choice([-10, 10]), random.choice([-10, 10]))
 
     # Controlled ball
     controlled_ball = Ball(WIDTH // 2, HEIGHT // 2, 20, RED, 0, 0)
@@ -66,13 +70,13 @@ if __name__ == "__main__":
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            controlled_ball.x -= 15
+            controlled_ball.x -= PIXEL_SPEED
         if keys[pygame.K_RIGHT]:
-            controlled_ball.x += 15
+            controlled_ball.x += PIXEL_SPEED
         if keys[pygame.K_UP]:
-            controlled_ball.y -= 15
+            controlled_ball.y -= PIXEL_SPEED
         if keys[pygame.K_DOWN]:
-            controlled_ball.y += 15
+            controlled_ball.y += PIXEL_SPEED
 
         # Keep controlled ball within screen bounds
         controlled_ball.x = max(controlled_ball.radius, min(controlled_ball.x, WIDTH - controlled_ball.radius))
@@ -90,7 +94,7 @@ if __name__ == "__main__":
   
         # Check for collisions
         if controlled_ball.collide(random_ball) and not collision_happened:
-            points += 10
+            points += REWARD_POINTS
             collision_happened = True
             controlled_ball.color = YELLOW  # Change the color to yellow
         elif not controlled_ball.collide(random_ball):
@@ -99,8 +103,8 @@ if __name__ == "__main__":
 
 
         # Update timer
-        if timer >= 30:
-            points -= 10
+        if timer >= PENALIZING_TIME:
+            points -= PENALIZING_POINTS
             timer = 0
             
         # Draw
