@@ -32,7 +32,8 @@ if __name__ == "__main__":
     PENALIZING_TIME = 10 # SECONDS
     PENALIZING_POINTS = 10 
     PIXEL_SPEED = 10
-    REWARD_POINTS = 15
+    REWARD_POINTS = 20
+    END_GAME_POINTS = 50
 
     # Create the screen
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -49,9 +50,8 @@ if __name__ == "__main__":
             self.speed_y = speed_y
             self.fill_alpha = 0  # Added attribute for fill color alpha
 
-        #def draw(self, screen):
-        #    pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 
+        '''
         def draw(self, screen):
             pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius, 2) # Added the width parameter for the contour
             if self.fill_alpha > 0:  # Draw the transparent red fill only if alpha > 0
@@ -59,6 +59,11 @@ if __name__ == "__main__":
                 fill_color = pygame.Color(255, 0, 0, self.fill_alpha)
                 pygame.draw.circle(fill_surface, fill_color, (self.radius, self.radius), self.radius)
                 screen.blit(fill_surface, (int(self.x) - self.radius, int(self.y) - self.radius))
+        '''
+
+        def draw(self, screen):
+            pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
+
 
         def collide(self, other):
             distance = ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
@@ -116,12 +121,10 @@ if __name__ == "__main__":
         if controlled_ball.collide(random_ball) and not collision_happened:
             points += REWARD_POINTS
             collision_happened = True
-            controlled_ball.fill_alpha = int(points / 100 * 255)  # Update the fill_alpha based on the current score
-            # controlled_ball.color = YELLOW  # Change the color to yellow
+            controlled_ball.color = YELLOW  # Change the color to yellow
         elif not controlled_ball.collide(random_ball):
+            controlled_ball.color = RED
             collision_happened = False
-
-
 
 
         # Update timer
@@ -134,7 +137,7 @@ if __name__ == "__main__":
         random_ball.draw(screen)
         controlled_ball.draw(screen)
 
-        if points >= 100: 
+        if points >= END_GAME_POINTS: 
             font = pygame.font.Font(None, 50)
             win_text = font.render("Congratulations! You won!", True, BLACK)
             screen.blit(win_text, (WIDTH // 2 - win_text.get_width() // 2, HEIGHT // 2 - win_text.get_height() // 2))
@@ -148,7 +151,22 @@ if __name__ == "__main__":
             pygame.display.flip()
 
         # End the game if the user reaches 100 points
-        if points >= 100:
+        if points >= 100 or points < 0:
             break  # Exit the game loop
+        else:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+        pygame.display.update()
+        clock.tick(60)
+
+    # Display the final message and pause for 3 seconds
+    if points >= 100:
+        draw_text("You Win!", font, BLACK, screen, WIDTH // 2 - 50, HEIGHT // 2)
+    elif points < 0:
+        draw_text("You Lose!", font, BLACK, screen, WIDTH // 2 - 50, HEIGHT // 2)
+    pygame.display.update()
+    time.sleep(3)
 
     pygame.quit()
